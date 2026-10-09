@@ -94,7 +94,8 @@ form{padding:14px}
 <div class="field"><label for="english_name">الاسم بالكامل بالإنجليزي <span class="req">*</span></label><input id="english_name" name="english_name" type="text" required placeholder="Mohamed Ahmed Mahmoud Ali"></div>
 <div class="field"><label for="phone">رقم التليفون (واتساب) <span class="req">*</span></label><input id="phone" name="phone" type="tel" required placeholder="01xxxxxxxxx"></div>
 <div class="field"><label for="email">البريد الإلكتروني <span class="req">*</span></label><input id="email" name="email" type="email" required placeholder="name@example.com"></div>
-<div class="field full"><label for="national_id">الرقم القومي <span class="req">*</span></label><input id="national_id" name="national_id" type="text" inputmode="numeric" maxlength="14" pattern="[0-9]{14}" required placeholder="أدخل 14 رقمًا"></div>
+<div class="field"><label for="national_id">الرقم القومي <span class="req">*</span></label><input id="national_id" name="national_id" type="text" inputmode="numeric" maxlength="14" pattern="[0-9]{14}" required placeholder="أدخل 14 رقمًا"></div>
+<div class="field"><label for="governorate">المحافظة <span class="req">*</span></label><input id="governorate" name="governorate" type="text" required placeholder="اكتب اسم المحافظة"></div>
 </div>
 </section>
 
@@ -116,8 +117,23 @@ form{padding:14px}
 <div><h2 class="section-title">بيانات الفريق</h2><p class="section-sub">اختر اللجنة وأضف نبذة عن مهاراتك</p></div>
 </div>
 <div class="grid">
-<div class="field full"><label for="committee">اللجنة الخاصة بك <span class="req">*</span></label><select id="committee" name="committee" required><option value="">اختر اللجنة...</option><option>Media</option><option>HR</option><option>OR</option><option>PR</option><option>Other</option></select></div>
-<div class="field full"><label for="extra_info">لماذا تريد الانضمام أو الاستمرار في الفريق؟</label><textarea id="extra_info" name="extra_info" placeholder="اكتب سبب رغبتك في الانضمام أو الاستمرار..."></textarea></div>
+<div class="field full"><label for="committee">اللجنة التي ترغب في الانضمام إليها <span class="req">*</span></label><select id="committee" name="committee" required>
+<option value="">اختر اللجنة...</option>
+<option>الموارد البشرية (HR)</option>
+<option>العلاقات العامة (PR)</option>
+<option>التنظيم وإدارة العمليات (OR)</option>
+<option>Training &amp; Presentation (T&amp;P)</option>
+<option>Graphic Design</option>
+<option>Photographer &amp; Videographer</option>
+<option>Video Editing</option>
+<option>Marketing</option>
+<option>Content Creator</option>
+<option>Voiceover</option>
+</select></div>
+<div class="field full" id="committee_question_field" style="display:none"><label id="committee_question_label" for="committee_question">سؤال خاص باللجنة <span class="req">*</span></label><textarea id="committee_question" name="committee_question" placeholder="اكتب إجابتك هنا..."></textarea></div>
+<div class="field full"><label for="student_activities">هل سبق لك المشاركة في الأنشطة الطلابية؟ <span class="req">*</span></label><select id="student_activities" name="student_activities" required><option value="">اختر الإجابة...</option><option value="نعم">نعم</option><option value="لا">لا</option></select></div>
+<div class="field full" id="activities_details_field" style="display:none"><label for="activities_details">في حالة المشاركة، اذكر الأنشطة التي شاركت بها</label><textarea id="activities_details" name="activities_details" placeholder="اذكر الأنشطة الطلابية التي شاركت بها..."></textarea></div>
+<div class="field full"><label for="extra_info">لماذا تريد الانضمام إلى الفريق؟</label><textarea id="extra_info" name="extra_info" placeholder="اكتب سبب رغبتك في الانضمام إلى الفريق..."></textarea></div>
 <div class="field full"><label for="skills">المهارات والخبرات</label><textarea id="skills" name="skills" placeholder="مثال: التصميم، التصوير، المونتاج، كتابة المحتوى، التنظيم..."></textarea></div>
 </div>
 </section>
@@ -136,10 +152,44 @@ form{padding:14px}
 </div>
 
 <script>
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMx4oc9umT26pPEKo--wCg28bXTf5r_bmJMz5xapPxRMNfKJ3crVTmcuxvQ8lzWjsZ/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIvoNP2lY32nUGjMrUrOWfYjUUFeXrG941zbLjn0TXVI_cisER7tHpe1YneF7H1l5n/exec';
 const form = document.getElementById('nexusForm');
 const submitBtn = document.getElementById('submitBtn');
 const statusBox = document.getElementById('formStatus');
+
+const studentActivities = document.getElementById('student_activities');
+const activitiesDetailsField = document.getElementById('activities_details_field');
+const activitiesDetails = document.getElementById('activities_details');
+const committeeSelect = document.getElementById('committee');
+const committeeQuestionField = document.getElementById('committee_question_field');
+const committeeQuestionLabel = document.getElementById('committee_question_label');
+const committeeQuestion = document.getElementById('committee_question');
+const committeeQuestions = {
+  'الموارد البشرية (HR)': 'ما الذي يجعلك مناسبًا للعمل في الموارد البشرية، وكيف تتعامل مع اختلافات أعضاء الفريق؟',
+  'العلاقات العامة (PR)': 'كيف ستتعامل مع موقف يحتاج إلى التواصل مع جهة خارجية وتمثيل NEXUS بصورة احترافية؟',
+  'التنظيم وإدارة العمليات (OR)': 'إذا حدث تأخير أو مشكلة أثناء فعالية، كيف ستتصرف لضمان سير التنظيم؟',
+  'Training & Presentation (T&P)': 'ما الموضوع الذي يمكنك تقديمه أو التدريب عليه؟ وكيف ستجعله واضحًا وجذابًا للحضور؟',
+  'Graphic Design': 'ما برامج التصميم التي تستخدمها؟ اذكر مثالًا على تصميم أو فكرة إبداعية يمكنك تنفيذها للفريق.',
+  'Photographer & Videographer': 'ما خبرتك في التصوير؟ وما الأدوات أو المعدات التي تجيد استخدامها؟',
+  'Video Editing': 'ما برامج المونتاج التي تستخدمها؟ وما نوع الفيديوهات التي تستطيع تنفيذها؟',
+  'Marketing': 'اقترح فكرة تسويقية تساعد على زيادة التفاعل والوصول إلى طلاب جدد.',
+  'Content Creator': 'اكتب فكرة محتوى قصيرة يمكن نشرها على صفحات NEXUS لجذب الطلاب.',
+  'Voiceover': 'هل لديك خبرة في التعليق الصوتي؟ وما نوع النصوص أو الفيديوهات التي تفضل أداءها؟'
+};
+committeeSelect.addEventListener('change', () => {
+  const question = committeeQuestions[committeeSelect.value] || '';
+  committeeQuestionField.style.display = question ? 'flex' : 'none';
+  committeeQuestionLabel.innerHTML = question ? question + ' <span class="req">*</span>' : 'سؤال خاص باللجنة';
+  committeeQuestion.required = Boolean(question);
+  if (!question) committeeQuestion.value = '';
+});
+
+studentActivities.addEventListener('change', () => {
+  const participated = studentActivities.value === 'نعم';
+  activitiesDetailsField.style.display = participated ? 'flex' : 'none';
+  activitiesDetails.required = participated;
+  if (!participated) activitiesDetails.value = '';
+});
 
 function checkFormStatus(){
   return new Promise((resolve)=>{
@@ -195,10 +245,14 @@ form.addEventListener('submit', async (e)=>{
   data.append('phone', phone.replace(/\s+/g,''));
   data.append('email', document.getElementById('email').value.trim());
   data.append('nationalId', nationalId);
+  data.append('governorate', document.getElementById('governorate').value.trim());
   data.append('university', document.getElementById('university').value.trim());
   data.append('college', document.getElementById('faculty').value.trim());
   data.append('level', document.getElementById('academic_year').value);
   data.append('committee', document.getElementById('committee').value);
+  data.append('committeeQuestion', document.getElementById('committee_question').value.trim());
+  data.append('studentActivities', document.getElementById('student_activities').value);
+  data.append('activitiesDetails', document.getElementById('activities_details').value.trim());
   data.append('notes', document.getElementById('extra_info').value.trim());
   data.append('skills', document.getElementById('skills').value.trim());
 
